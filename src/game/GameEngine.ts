@@ -84,9 +84,11 @@ export class GameEngine {
     this.state.time = Math.floor(this.accumulatedTime);
     this.state.score = this.state.time;
 
-    // Increase speed over time
+    // Calculate speed: base gradual increase + step increase every 10 seconds
+    const gradualIncrease = this.accumulatedTime * this.config.speedIncrement * 0.3;
+    const levelBonus = Math.floor(this.state.time / 10) * 0.4; // +0.4 speed every 10 seconds
     this.state.speed = Math.min(
-      this.config.initialSpeed + this.accumulatedTime * this.config.speedIncrement,
+      this.config.initialSpeed + gradualIncrease + levelBonus,
       this.config.maxSpeed
     );
 
