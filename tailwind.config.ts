@@ -57,6 +57,18 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        neon: {
+          pink: "hsl(var(--neon-pink))",
+          green: "hsl(var(--neon-green))",
+          cyan: "hsl(var(--neon-cyan))",
+          yellow: "hsl(var(--neon-yellow))",
+          orange: "hsl(var(--neon-orange))",
+          purple: "hsl(var(--neon-purple))",
+        },
+      },
+      fontFamily: {
+        orbitron: ['Orbitron', 'sans-serif'],
+        arcade: ['"Press Start 2P"', 'cursive'],
       },
       borderRadius: {
         lg: "var(--radius)",
