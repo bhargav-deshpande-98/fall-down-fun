@@ -204,23 +204,24 @@ export class GameEngine {
 
   private checkGameOver(): void {
     const ball = this.state.ball;
-    
-    // Game over if ball goes above screen
-    if (ball.y - ball.radius < 0) {
+
+    // Game over ONLY if ball goes above screen (pushed up by platforms)
+    if (ball.y + ball.radius < 0) {
       this.state.isGameOver = true;
       this.state.isPlaying = false;
-      
+
       // Update high score
       if (this.state.score > this.state.highScore) {
         this.state.highScore = this.state.score;
         localStorage.setItem('falldown2-highscore', this.state.highScore.toString());
       }
     }
-    
-    // Also game over if ball falls below screen (shouldn't happen normally)
-    if (ball.y - ball.radius > this.config.canvasHeight) {
-      this.state.isGameOver = true;
-      this.state.isPlaying = false;
+
+    // Ball should NOT die when falling below screen - it should fall through gaps
+    // If ball somehow goes way below, just reset it to bottom (shouldn't happen with proper gap navigation)
+    if (ball.y - ball.radius > this.config.canvasHeight + 100) {
+      // Teleport ball back to visible area if it somehow got stuck way below
+      ball.y = this.config.canvasHeight - ball.radius;
     }
   }
 
