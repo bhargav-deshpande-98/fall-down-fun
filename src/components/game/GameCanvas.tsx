@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { GameEngine } from '@/game/GameEngine';
 import { getGameConfig } from '@/game/config';
 import { Platform, Ball, PlatformColor } from '@/game/types';
+import { playLandSound, playFallThroughSound, playMilestoneSound, playDeathSound } from '@/lib/sounds';
 
 interface GameCanvasProps {
   onGameOver: (score: number, highScore: number) => void;
@@ -39,6 +40,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const touchStartXRef = useRef<number | null>(null);
   const currentDirectionRef = useRef<'left' | 'right' | null>(null);
+  const prevVelocityYRef = useRef<number>(0);
+  const prevScoreMilestoneRef = useRef<number>(0);
 
   // Handle resize
   useEffect(() => {
@@ -199,13 +202,32 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     if (!ctx) return;
 
     gameEngineRef.current.update(timestamp);
-    
+
     const state = gameEngineRef.current.getState();
     onScoreUpdate(state.time);
+
+    // Detect game events
+    const currentVelocityY = state.ball.velocityY;
+    if (prevVelocityYRef.current > 0 && currentVelocityY === 0) {
+      // Ball was falling and stopped — landed on platform
+      playLandSound();
+    } else if (prevVelocityYRef.current === 0 && currentVelocityY > 0) {
+      // Ball was on platform and started falling — fell through gap
+      playFallThroughSound();
+    }
+    prevVelocityYRef.current = currentVelocityY;
+
+    // Score milestone every 10 seconds
+    const currentMilestone = Math.floor(state.time / 10);
+    if (currentMilestone > prevScoreMilestoneRef.current && state.time > 0) {
+      prevScoreMilestoneRef.current = currentMilestone;
+      playMilestoneSound();
+    }
 
     draw(ctx, dimensions.width, dimensions.height);
 
     if (state.isGameOver) {
+      playDeathSound();
       onGameOver(state.score, state.highScore);
       return;
     }
@@ -218,6 +240,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   // Start game
   useEffect(() => {
     if (isPlaying && gameEngineRef.current) {
+      prevVelocityYRef.current = 0;
+      prevScoreMilestoneRef.current = 0;
       gameEngineRef.current.start();
       animationFrameRef.current = requestAnimationFrame(gameLoop);
     }

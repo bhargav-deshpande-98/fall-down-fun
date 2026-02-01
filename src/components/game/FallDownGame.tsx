@@ -3,6 +3,7 @@ import { GameCanvas } from './GameCanvas';
 import { GameUI } from './GameUI';
 import { StartScreen } from './StartScreen';
 import { GameOverScreen } from './GameOverScreen';
+import { initAudio } from '@/lib/sounds';
 
 type GameScreen = 'start' | 'playing' | 'gameover';
 
@@ -17,6 +18,7 @@ export const FallDownGame: React.FC = () => {
   const [isNewHighScore, setIsNewHighScore] = useState(false);
 
   const handleStart = useCallback(() => {
+    initAudio();
     setScore(0);
     setScreen('playing');
   }, []);
@@ -33,6 +35,7 @@ export const FallDownGame: React.FC = () => {
   }, []);
 
   const handleRestart = useCallback(() => {
+    initAudio();
     setScore(0);
     setFinalScore(0);
     setIsNewHighScore(false);
